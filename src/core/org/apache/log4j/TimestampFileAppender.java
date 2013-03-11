@@ -14,6 +14,8 @@ import org.apache.log4j.helpers.LogLog;
  * @author Francois Rousseau
  */
 public class TimestampFileAppender extends FileAppender {
+  private static final String DOT = ".";
+  private static final String UNDERSCORE = "_";
 
   /**
    * The date pattern with a format from {@link SimpleDateFormat}.
@@ -24,8 +26,7 @@ public class TimestampFileAppender extends FileAppender {
   /**
    * The default constructor does not do anything.
    */
-  public TimestampFileAppender() {
-  }
+  public TimestampFileAppender() {}
 
   /**
    * Instantiate a FileAppender and open the file designated by <code>filename</code>.
@@ -61,7 +62,7 @@ public class TimestampFileAppender extends FileAppender {
       fileName = insertTimestampInFile(fileName, datePattern);
       super.activateOptions();
     } else {
-      LogLog.warn("File option not set for appender ["+name+"].");
+      LogLog.warn("File option not set for appender [" + name + "].");
       LogLog.warn("Are you using TimestampFileAppender instead of ConsoleAppender?");
     }
   }
@@ -71,26 +72,23 @@ public class TimestampFileAppender extends FileAppender {
    * Insert it before the extension if present.
    */
   private static String insertTimestampInFile(String filename, String datePattern) {
-    final String DOT = ".";
-    final String UNDERSCORE = "_";
     final String timestamp =
       new SimpleDateFormat(datePattern).format(Calendar.getInstance().getTime());
-    final StringBuilder builder = new StringBuilder();
+    StringBuilder builder = new StringBuilder();
 
     // if the provided filename has an extension, we need to insert the timestamp
     // before the extension.
     final int index1 = filename.lastIndexOf(File.separator);
     final int index2 = filename.lastIndexOf(DOT);
-    if (index2 > index1) {
+    if(index2 > index1) {  // there is an extension, cut before it
       builder.append(filename.substring(0, index2));
     } else {
       builder.append(filename);
     }
     builder.append(UNDERSCORE);
     builder.append(timestamp);
-    if (index2 > index1) {
-      builder.append(DOT);
-      builder.append(filename.substring(index2 + 1));
+    if(index2 > index1) {  // there is an extension, re-append it at the end
+      builder.append(filename.substring(index2));
     }
     return builder.toString();
   }
